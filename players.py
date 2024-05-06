@@ -37,7 +37,21 @@ class MinimaxPlayer(Player):
             self.oppSym = 'O'
         else:
             self.oppSym = 'X'
-       
+        self.tot_time = 0
+
+    def utility():
+        # Determines "Goodness" of a terminal state
+        return
+    
+    def successor():
+        # Takes in a current state and generates all succcessor states within one move
+        return
+
+    def minimax(int depth):
+        # Have heuristic function to make decision if past depth limit (2 sec)
+        # override player class get_move inorder to produce a move through minimax
+        return
+
         
 
 
