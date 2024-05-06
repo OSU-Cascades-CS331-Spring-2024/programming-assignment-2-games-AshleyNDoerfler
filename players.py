@@ -2,6 +2,7 @@
     Defines Player class, and subclasses Human and Minimax Player.
 '''
 import time
+from othello_board import OthelloBoard
 
 class Player:
     def __init__(self, symbol):
@@ -32,14 +33,19 @@ class HumanPlayer(Player):
 
 class MinimaxPlayer(Player):
 
-    def __init__(self, symbol):
+    def __init__(self, symbol, othello_board):
         Player.__init__(self, symbol)
         if symbol == 'X':
             self.oppSym = 'O'
         else:
             self.oppSym = 'X'
+        self.symbol = symbol
         self.MAXTIME = 2 # seconds
         self.tot_time = 0
+        self.board = []
+
+    def set_board(self, board):
+        self.board = board
 
     # Ref: https://courses.cs.washington.edu/courses/cse573/04au/Project/mini1/RUSSIA/Final_Paper.pdf
     def utility(self):
@@ -48,7 +54,14 @@ class MinimaxPlayer(Player):
     
     def successor(self):
         # Takes in a current state and generates all succcessor states within one move
-        return
+        avaliable_moves = []
+        
+        # code taken from othello_board.py and modified
+        for c in range (0, self.board.cols):
+            for r in range (0, self.board.rows):
+                if self.board.is_cell_empty(c, r) and self.board.is_legal_move(c, r, self.symbol):
+                    avaliable_moves.append((c,r))
+        return avaliable_moves
     
     def iterative_deepening_search(self):
         # Ref: https://stacks.stanford.edu/file/druid:wk764yw7162/wk764yw7162.pdf
