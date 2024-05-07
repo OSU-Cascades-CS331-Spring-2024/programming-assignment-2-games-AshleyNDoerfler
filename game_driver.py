@@ -26,11 +26,6 @@ class GameDriver:
 
         self.board = OthelloBoard(num_rows, num_cols, self.p1.symbol, self.p2.symbol)
         self.board.initialize()
-        
-        if p1type.lower() in "minimax" or p1type in "ai":
-            self.p1.set_board(self.board)
-        if p2type.lower() in "minimax" or p2type in "ai":
-            self.p2.set_board(self.board)
 
     def display(self):
         print("Player 1 (", self.p1.symbol, ") score: ",
