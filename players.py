@@ -53,50 +53,66 @@ class MinimaxPlayer(Player):
                 if board.is_cell_empty(c, r) and board.is_legal_move(c, r, self.symbol):
                     avaliable_moves.append([c,r])
         return avaliable_moves
+    
+    def expand(self, board, utility, move, c_change, r_change):
+        cost = 0
+        i = move[0] + c_change
+        j = move[1] + r_change
+        while(board.is_in_bounds(i,j) and board.get_cell(i,j) == self.oppSym):
+            cost += 1
+            i += c_change
+            j += r_change
+        if board.get_cell(i,j) == self.symbol:
+            utility[move] = cost
+        return utility
 
     def utility(self, board, successor):
         utility = {}
 
         for move in successor:
+            c = move[0]
+            r = move[1]
             # if opponent has pieces to the left and of the move and player has one to the left of that
-            if(board.is_in_bounds(move[1]-1, move[2])):
-                if(board.get_cell(move[1]-1, move[2]) == self.oppSym):
-                    return
+            if(board.is_in_bounds(c-1, r)):
+                if(board.get_cell(c-1, r) == self.oppSym):
+                    utility = self.expand(board, utility, move, -1, 0)
 
             # if opponent has pieces to the right and of the move and player has one to the right of that
-            if(board.is_in_bounds(move[1]+1, move[2])):
-                if(board.get_cell(move[1]+1, move[2]) == self.oppSym):
-                    return
+            if(board.is_in_bounds(c+1, r)):
+                if(board.get_cell(c+1, r) == self.oppSym):
+                    utility = self.expand(board, utility, move, 1, 0)
                 
             # if opponent has pieces below the move and player has one below that
-            if(board.is_in_bounds(move[1], move[2]-1)):
-                if(board.get_cell(move[1], move[2]-1) == self.oppSym):
-                    return
+            if(board.is_in_bounds(c, r+1)):
+                if(board.get_cell(c, r+1) == self.oppSym):
+                    utility = self.expand(board, utility, move, 0, 1)
 
             # if opponent has pieces above the move and player has one above that
-            if(board.is_in_bounds(move[1], move[2]+1)):
-                if(board.get_cell(move[1], move[2]+1) == self.oppSym):
-                    return
+            if(board.is_in_bounds(c, r-1)):
+                if(board.get_cell(c, r-1) == self.oppSym):
+                    utility = self.expand(board, utility, move, 0, -1)
 
             # if opponent has pieces left-up-diagonal the move and player has one left-up-diagonal that
-            if(board.is_in_bounds(move[1]-1, move[2]+1)):
-                if(board.get_cell(move[1]-1, move[2]+1) == self.oppSym):
-                    return
+            if(board.is_in_bounds(c-1, r-1)):
+                if(board.get_cell(c-1, r-1) == self.oppSym):
+                    utility = self.expand(board, utility, move, -1, -1)
 
             # if opponent has pieces right-up-diagonal the move and player has one right-up-diagonal that
-            if(board.is_in_bounds(move[1]+1, move[2]+1)):
-                if(board.get_cell(move[1]+1, move[2]+1) == self.oppSym):
-                    return
+            if(board.is_in_bounds(c+1, r-1)):
+                if(board.get_cell(c+1, r-1) == self.oppSym):
+                    utility = self.expand(board, utility, move, 1, -1)
                 
             # if opponent has pieces left-down-diagonal the move and player has one left-down-diagonal that
-            if(board.is_in_bounds(move[1]-1, move[2]-1)):
-                if(board.get_cell(move[1]-1, move[2]-1) == self.oppSym):
-                    return
+            if(board.is_in_bounds(c-1, r+1)):
+                if(board.get_cell(c-1, r+1) == self.oppSym):
+                    utility = self.expand(board, utility, move, -1, 1)
 
             # if opponent has pieces right-down-diagonal the move and player has one right-down-diagonal that
-            if(board.is_in_bounds(move[1]+1, move[2]-1)):
-                if(board.get_cell(move[1]+1, move[2]-1) == self.oppSym):
-                    return
+            if(board.is_in_bounds(c+1, r+1)):
+                if(board.get_cell(c+1, r+1) == self.oppSym):
+                    utility = self.expand(board, utility, move, 1, 1)
+                
+            return utility
 
     def heuristic(self):
         # https://courses.cs.washington.edu/courses/cse573/04au/Project/mini1/RUSSIA/Final_Paper.pdf
