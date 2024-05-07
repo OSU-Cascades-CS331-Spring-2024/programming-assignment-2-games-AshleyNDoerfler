@@ -42,6 +42,7 @@ class MinimaxPlayer(Player):
         self.symbol = symbol
         self.MAXTIME = 2 # seconds
         self.tot_time = 0
+        self.num_moves = 0
     
     def successor(self, board):
         # Takes in a current state and generates all succcessor states within one move
@@ -55,7 +56,7 @@ class MinimaxPlayer(Player):
         return avaliable_moves
     
     def expand(self, board, move, c_change, r_change):
-        cost = 0
+        cost = 1
         i = move[0] + c_change
         j = move[1] + r_change
         while(board.is_in_bounds(i,j) and board.get_cell(i,j) == self.oppSym):
@@ -186,8 +187,14 @@ class MinimaxPlayer(Player):
 
     def get_move(self, board):
         # Get successor states
+        init_time = time.time()
         successor = self.successor(board)
-        return self.minimax(board, successor)
+        move = self.minimax(board, successor)
+        self.num_moves += 1
+        self.tot_time = time.time() - init_time
+        avg_time = self.tot_time / self.num_moves
+        print("time: ", time.time() - init_time, "s, num moves: ", self.num_moves, "avg time: ", avg_time, "s")
+        return move[0], move[1]
 
 
 
