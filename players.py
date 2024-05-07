@@ -33,7 +33,7 @@ class HumanPlayer(Player):
 
 class MinimaxPlayer(Player):
 
-    def __init__(self, symbol, othello_board):
+    def __init__(self, symbol):
         Player.__init__(self, symbol)
         if symbol == 'X':
             self.oppSym = 'O'
@@ -54,7 +54,7 @@ class MinimaxPlayer(Player):
                     avaliable_moves.append([c,r])
         return avaliable_moves
     
-    def expand(self, board, utility, move, c_change, r_change):
+    def expand(self, board, move, c_change, r_change):
         cost = 0
         i = move[0] + c_change
         j = move[1] + r_change
@@ -63,63 +63,84 @@ class MinimaxPlayer(Player):
             i += c_change
             j += r_change
         if board.get_cell(i,j) == self.symbol:
-            utility[move] = cost
-        return utility
+            return cost
+        return 0
 
-    def utility(self, board, successor):
-        utility = {}
+    def utility(self, board, move):
+        #Ref: https://phoenixnap.com/kb/python-initialize-dictionary
+        # keys = []
+        # cost = []
 
-        for move in successor:
-            c = move[0]
-            r = move[1]
-            # if opponent has pieces to the left and of the move and player has one to the left of that
-            if(board.is_in_bounds(c-1, r)):
-                if(board.get_cell(c-1, r) == self.oppSym):
-                    utility = self.expand(board, utility, move, -1, 0)
+        # for move in successor:
+        c = move[0]
+        r = move[1]
 
-            # if opponent has pieces to the right and of the move and player has one to the right of that
-            if(board.is_in_bounds(c+1, r)):
-                if(board.get_cell(c+1, r) == self.oppSym):
-                    utility = self.expand(board, utility, move, 1, 0)
+        best_cost = 0
+
+        # if opponent has pieces to the left and of the move and player has one to the left of that
+        if(board.is_in_bounds(c-1, r)):
+            if(board.get_cell(c-1, r) == self.oppSym):
+                cost = self.expand(board, move, -1, 0)
+                if cost > best_cost:
+                    best_cost = cost
+
+        # if opponent has pieces to the right and of the move and player has one to the right of that
+        if(board.is_in_bounds(c+1, r)):
+            if(board.get_cell(c+1, r) == self.oppSym):
+                cost = (self.expand(board, move, 1, 0))
+                if cost > best_cost:
+                    best_cost = cost
                 
-            # if opponent has pieces below the move and player has one below that
-            if(board.is_in_bounds(c, r+1)):
-                if(board.get_cell(c, r+1) == self.oppSym):
-                    utility = self.expand(board, utility, move, 0, 1)
+        # if opponent has pieces below the move and player has one below that
+        if(board.is_in_bounds(c, r+1)):
+            if(board.get_cell(c, r+1) == self.oppSym):
+                cost = (self.expand(board, move, 0, 1))
+                if cost > best_cost:
+                    best_cost = cost
 
-            # if opponent has pieces above the move and player has one above that
-            if(board.is_in_bounds(c, r-1)):
-                if(board.get_cell(c, r-1) == self.oppSym):
-                    utility = self.expand(board, utility, move, 0, -1)
+        # if opponent has pieces above the move and player has one above that
+        if(board.is_in_bounds(c, r-1)):
+            if(board.get_cell(c, r-1) == self.oppSym):
+                cost = (self.expand(board, move, 0, -1))
+                if cost > best_cost:
+                    best_cost = cost
 
-            # if opponent has pieces left-up-diagonal the move and player has one left-up-diagonal that
-            if(board.is_in_bounds(c-1, r-1)):
-                if(board.get_cell(c-1, r-1) == self.oppSym):
-                    utility = self.expand(board, utility, move, -1, -1)
+        # if opponent has pieces left-up-diagonal the move and player has one left-up-diagonal that
+        if(board.is_in_bounds(c-1, r-1)):
+            if(board.get_cell(c-1, r-1) == self.oppSym):
+                cost = (self.expand(board, move, -1, -1))
+                if cost > best_cost:
+                    best_cost = cost
 
-            # if opponent has pieces right-up-diagonal the move and player has one right-up-diagonal that
-            if(board.is_in_bounds(c+1, r-1)):
-                if(board.get_cell(c+1, r-1) == self.oppSym):
-                    utility = self.expand(board, utility, move, 1, -1)
+        # if opponent has pieces right-up-diagonal the move and player has one right-up-diagonal that
+        if(board.is_in_bounds(c+1, r-1)):
+            if(board.get_cell(c+1, r-1) == self.oppSym):
+                cost = (self.expand(board, move, 1, -1))
+                if cost > best_cost:
+                    best_cost = cost
                 
-            # if opponent has pieces left-down-diagonal the move and player has one left-down-diagonal that
-            if(board.is_in_bounds(c-1, r+1)):
-                if(board.get_cell(c-1, r+1) == self.oppSym):
-                    utility = self.expand(board, utility, move, -1, 1)
+        # if opponent has pieces left-down-diagonal the move and player has one left-down-diagonal that
+        if(board.is_in_bounds(c-1, r+1)):
+            if(board.get_cell(c-1, r+1) == self.oppSym):
+                cost = (self.expand(board, move, -1, 1))
+                if cost > best_cost:
+                    best_cost = cost
 
-            # if opponent has pieces right-down-diagonal the move and player has one right-down-diagonal that
-            if(board.is_in_bounds(c+1, r+1)):
-                if(board.get_cell(c+1, r+1) == self.oppSym):
-                    utility = self.expand(board, utility, move, 1, 1)
-                
-        return utility
+        # if opponent has pieces right-down-diagonal the move and player has one right-down-diagonal that
+        if(board.is_in_bounds(c+1, r+1)):
+            if(board.get_cell(c+1, r+1) == self.oppSym):
+                cost = (self.expand(board, move, 1, 1))
+                if cost > best_cost:
+                    best_cost = cost
 
-    def heuristic(self, min_or_max):
+        # utility = dict(zip(keys, cost))
+        return best_cost
+
+    def heuristic(self, min_or_max, successor):
         # https://courses.cs.washington.edu/courses/cse573/04au/Project/mini1/RUSSIA/Final_Paper.pdf
         # 100 * (Max Players coins - Min Players coins) / (Max Players coins + Min Players coins)
-        final_move_val = -1000000
         final_move = None
-        for move in self.successor:
+        for move in successor:
             move[1] = 100 * (move[1] - self.tot_time) / (move[1] + self.tot_time)
             if min_or_max == "max":
                 if move[1] > final_move[1]:
@@ -132,11 +153,13 @@ class MinimaxPlayer(Player):
     def overtime(self, init_time):
         return time.time() - init_time > self.MAXTIME
     
-    def minimax(self):
+    def minimax(self, board, successor):
         # Have heuristic function to make decision if past depth limit (2 sec)
         # override player class get_move inorder to produce a move through minimax
         init_time = time.time()
         final_move = None
+        best_cost = 0
+        # utility = dict(zip(keys, vals))
 
         if(self.overtime(init_time)):
             return self.heuristic("max")
@@ -144,26 +167,27 @@ class MinimaxPlayer(Player):
         # Maximizing player
         if(self.symbol == 'X'):
             # Find max move from successor states
-            for move in self.successor:
+            for move in successor:
+                cost = self.utility(board, move)
                 if(self.overtime(init_time)):
                     return self.heuristic("max")
-                if move[1] > final_move[1]:
+                if cost > best_cost:
                     final_move = move
-            return final_move[0]
+            return final_move
         else:
-            for move in self.successor:
+            for move in successor:
+                cost = self.utility(board, move)
                 if(self.overtime(init_time)):
                     return self.heuristic("min")
-                if move[1] < final_move[1]:
+                if cost > best_cost:
                     final_move = move
             # Find min move from successor states
-            return final_move[0]
+            return final_move
 
     def get_move(self, board):
         # Get successor states
         successor = self.successor(board)
-        utility = self.utility(successor)
-        return self.minimax()
+        return self.minimax(board, successor)
 
 
 
