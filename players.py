@@ -112,16 +112,33 @@ class MinimaxPlayer(Player):
                 if(board.get_cell(c+1, r+1) == self.oppSym):
                     utility = self.expand(board, utility, move, 1, 1)
                 
-            return utility
+        return utility
 
     def heuristic(self):
         # https://courses.cs.washington.edu/courses/cse573/04au/Project/mini1/RUSSIA/Final_Paper.pdf
         # 100 * (Max Players coins - Min Players coins) / (Max Players coins + Min Players coins)
         return
     
-    def minimax(depth):
+    def overtime(self, init_time):
+        return time.time() - init_time > self.MAXTIME
+    
+    def minimax(self, depth):
         # Have heuristic function to make decision if past depth limit (2 sec)
         # override player class get_move inorder to produce a move through minimax
+        init_time = time.time()
+        final_move = None
+
+        if(self.overtime(init_time)):
+            return self.heuristic()
+        
+        # Maximizing player
+        if(self.symbol == 'X'):
+            # Find max move from successor states
+            return final_move
+        else:
+            # Find min move from successor states
+            return final_move
+            
         return
 
     def get_move(self, board):
