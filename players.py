@@ -114,37 +114,56 @@ class MinimaxPlayer(Player):
                 
         return utility
 
-    def heuristic(self):
+    def heuristic(self, min_or_max):
         # https://courses.cs.washington.edu/courses/cse573/04au/Project/mini1/RUSSIA/Final_Paper.pdf
         # 100 * (Max Players coins - Min Players coins) / (Max Players coins + Min Players coins)
-        return
+        final_move_val = -1000000
+        final_move = None
+        for move in self.successor:
+            move[1] = 100 * (move[1] - self.tot_time) / (move[1] + self.tot_time)
+            if min_or_max == "max":
+                if move[1] > final_move[1]:
+                    final_move = move
+            else:
+                if move[1] < final_move[1]:
+                    final_move = move
+        return final_move[0]
     
     def overtime(self, init_time):
         return time.time() - init_time > self.MAXTIME
     
-    def minimax(self, depth):
+    def minimax(self):
         # Have heuristic function to make decision if past depth limit (2 sec)
         # override player class get_move inorder to produce a move through minimax
         init_time = time.time()
         final_move = None
 
         if(self.overtime(init_time)):
-            return self.heuristic()
+            return self.heuristic("max")
         
         # Maximizing player
         if(self.symbol == 'X'):
             # Find max move from successor states
-            return final_move
+            for move in self.successor:
+                if(self.overtime(init_time)):
+                    return self.heuristic("max")
+                if move[1] > final_move[1]:
+                    final_move = move
+            return final_move[0]
         else:
+            for move in self.successor:
+                if(self.overtime(init_time)):
+                    return self.heuristic("min")
+                if move[1] < final_move[1]:
+                    final_move = move
             # Find min move from successor states
-            return final_move
-            
-        return
+            return final_move[0]
 
     def get_move(self, board):
         # Get successor states
         successor = self.successor(board)
         utility = self.utility(successor)
+        return self.minimax()
 
 
 
