@@ -14,9 +14,11 @@ How to play a game:
 Simulate four games between yourself and the minimax player on a 4x4 board, with the
 depth parameter set to 5, 3, 2, and 1, respectively.
 a. What were the results of each game?
-  I think I misunderstood and thought we were going to use time as the limiting   factor instead of depth, but this is almost due, so here are just the average   times each run: 
-    win
-    lose
+
+  Depth 5: Human Won
+  Depth 3: Human Won
+  Depth 2: Human Won
+  Depth 1: AI won
     
 b. Did the minimax player’s moves change when the depth was limited to smaller
 and smaller values?
@@ -24,9 +26,11 @@ and smaller values?
   
 c. What was the average time per move for each of the games? Comment on why
 there is or is not a difference.
-    avg time:  3.6443982805524555e-06 s
-    avg time:  1.8978118896484374e-05 s
-    With how I created my program, the average time is going to change based on     how many successors there are. My loops iterate through the successors.
+
+    Depth 5: avg time:  2.5272369384765625e-05 s
+    Depth 3: avg time:  1.5894571940104168e-05 s
+    Depth 2: avg time:  1.5163421630859375e-05 s
+    Depth 1: avg time:  3.309249877929688e-05 s
     
 2. Simulate two games between yourself and the minimax player on an 8x8 board, with the
 depth parameter set to 5 and 2.
@@ -36,6 +40,4 @@ c. What was the average time per move for each of the games? Comment on why
 there is or is not a difference.
 Deliverables:
 
-Looking at this, I did my function very wrong...
-
-what I did find from my program is that the AI is not great, and not always acting how I would expect it to. The utility is supposed to find the best scoring move from a given move. It was unable to detect when it could score multiple points part of the time. In situations where it could score points in multiple ways, It liked to pick to go down and right for some reason. Next project I definetly need to start earlier to fix up mistakes like this.
+I think my utility sucks, back to the drawing boards
