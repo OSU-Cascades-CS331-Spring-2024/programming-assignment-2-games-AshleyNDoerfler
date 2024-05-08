@@ -54,23 +54,77 @@ class MinimaxPlayer(Player):
                 if board.is_cell_empty(c, r) and board.is_legal_move(c, r, self.symbol):
                     avaliable_moves.append([c,r])
         return avaliable_moves
+
+    def heuristic(self,board, min_or_max):
+        # https://courses.cs.washington.edu/courses/cse573/04au/Project/mini1/RUSSIA/Final_Paper.pdf
+        # 100 * (Max Players coins - Min Players coins) / (Max Players coins + Min Players coins)
+        final_move = None
+        for move in self.successor(board):
+            if final_move == None:
+                final_move = move
+            else:
+                if self.utility(board, move) > self.utility(board, final_move):
+                    final_move = move
+        return final_move
     
-    def expand(self, board, move, c_change, r_change):
-        cost = 1
-        i = move[0] + c_change
-        j = move[1] + r_change
-        while(board.is_in_bounds(i,j) and board.get_cell(i,j) == self.oppSym):
-            cost += 1
-            i += c_change
-            j += r_change
-        if board.get_cell(i,j) == self.symbol:
-            return cost
-        return 0
+    def overtime(self, init_time):
+        return time.time() - init_time > self.MAXTIME
+
+
+    def minimax(self, board, depth):
+        # Ref Artificial Intelligence: A Modern Approach (4th edition) by Russell and Norvig 
+        if depth == 0 or board.has_legal_moves_remaining(self.symbol) or self.overtime(time.time()):
+            return self.heuristic(board, self.symbol)
+        
+        value, move = self.max_value(board, depth)
+
+        return move
+
+    def max_value(self, board, depth):
+        if depth == 0 or board.has_legal_moves_remaining(self.symbol) or self.overtime(time.time()):
+            return self.heuristic(board, self.symbol), None
+        
+        v = float(-1000000)
+
+        # edit because board doesn't have actions
+        for a in self.successor(board):
+            v2, a2 = self.min_value(board, depth-1)
+            if v2 > v:
+                v, move = v2, a
+
+        return v, move
+
+    def min_value(self, board, depth):
+        if depth == 0 or board.has_legal_moves_remaining(self.symbol) or self.overtime(time.time()):
+            return self.heuristic(board, self.symbol), None
+
+        v = 1000000
+
+        # edit because board doesn't have actions
+        for a in self.successor(board):
+            v2, a2 = self.max_value(board, depth-1)
+            if v2 < v:
+                v, move = v2, a
+
+        return v, move
+
+    def get_move(self, board):
+        # Get successor states
+        init_time = time.time()
+        move = self.minimax(board, depth=2)
+        self.num_moves += 1
+        self.tot_time = time.time() - init_time
+        avg_time = self.tot_time / self.num_moves
+        print("time: ", time.time() - init_time, "s, num moves: ", self.num_moves, "avg time: ", avg_time, "s")
+        return move[0], move[1]
+
+
+
 
     def utility(self, board, move):
-        #Ref: https://phoenixnap.com/kb/python-initialize-dictionary
-        # keys = []
-        # cost = []
+#         #Ref: https://phoenixnap.com/kb/python-initialize-dictionary
+#         # keys = []
+#         # cost = []
 
         # for move in successor:
         c = move[0]
@@ -78,7 +132,7 @@ class MinimaxPlayer(Player):
 
         best_cost = 0
 
-        # if opponent has pieces to the left and of the move and player has one to the left of that
+#         # if opponent has pieces to the left and of the move and player has one to the left of that
         if(board.is_in_bounds(c-1, r)):
             if(board.get_cell(c-1, r) == self.oppSym):
                 cost = self.expand(board, move, -1, 0)
@@ -137,66 +191,14 @@ class MinimaxPlayer(Player):
         # utility = dict(zip(keys, cost))
         return best_cost
 
-    def heuristic(self, min_or_max, successor):
-        # https://courses.cs.washington.edu/courses/cse573/04au/Project/mini1/RUSSIA/Final_Paper.pdf
-        # 100 * (Max Players coins - Min Players coins) / (Max Players coins + Min Players coins)
-        final_move = None
-        for move in successor:
-            move[1] = 100 * (move[1] - self.tot_time) / (move[1] + self.tot_time)
-            if min_or_max == "max":
-                if move[1] > final_move[1]:
-                    final_move = move
-            else:
-                if move[1] < final_move[1]:
-                    final_move = move
-        return final_move[0]
-    
-    def overtime(self, init_time):
-        return time.time() - init_time > self.MAXTIME
-    
-    def minimax(self, board, successor):
-        # Have heuristic function to make decision if past depth limit (2 sec)
-        # override player class get_move inorder to produce a move through minimax
-        init_time = time.time()
-        final_move = None
-        best_cost = 0
-        # utility = dict(zip(keys, vals))
-
-        if(self.overtime(init_time)):
-            return self.heuristic("max")
-        
-        # Maximizing player
-        if(self.symbol == 'X'):
-            # Find max move from successor states
-            for move in successor:
-                cost = self.utility(board, move)
-                if(self.overtime(init_time)):
-                    return self.heuristic("max")
-                if cost > best_cost:
-                    final_move = move
-            return final_move
-        else:
-            for move in successor:
-                cost = self.utility(board, move)
-                if(self.overtime(init_time)):
-                    return self.heuristic("min")
-                if cost > best_cost:
-                    final_move = move
-            # Find min move from successor states
-            return final_move
-
-    def get_move(self, board):
-        # Get successor states
-        init_time = time.time()
-        successor = self.successor(board)
-        move = self.minimax(board, successor)
-        self.num_moves += 1
-        self.tot_time = time.time() - init_time
-        avg_time = self.tot_time / self.num_moves
-        print("time: ", time.time() - init_time, "s, num moves: ", self.num_moves, "avg time: ", avg_time, "s")
-        return move[0], move[1]
-
-
-
-
-
+    def expand(self, board, move, c_change, r_change):
+        cost = 1
+        i = move[0] + c_change
+        j = move[1] + r_change
+        while(board.is_in_bounds(i,j) and board.get_cell(i,j) == self.oppSym):
+            cost += 1
+            i += c_change
+            j += r_change
+        if board.get_cell(i,j) == self.symbol:
+            return cost
+        return 0
